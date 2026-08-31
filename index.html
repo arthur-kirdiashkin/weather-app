@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header__container container">
+        <div class="header__info">
+          <img class="header__logo" src="/img/header_logo.png" alt="" />
+          <div class="header__content">
+            <h2 class="header__title">WeatherMe</h2>
+            <p class="header__subtitle">21:00 pm</p>
+          </div>
+        </div>
+        <nav class="header__nav">
+          <ul class="weather__list">
+            <li class="weather__item weather__item--choose">Today</li>
+            <li class="weather__item">Tommorow</li>
+            <li class="weather__item">Monthly Forecast</li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main class="main__container container">
+      <div class="switch__container">
+        <p class="switcher__title">°C</p>
+        <label class="switch">
+          <input type="checkbox" />
+          <span class="slider"></span>
+        </label>
+        <p class="switcher__title">°F</p>
+      </div>
+      <form id="weather-form">
+        <input
+          class="weather-input"
+          type="text"
+          id="weather-input"
+          placeholder="Search location..."
+          required
+        />
+      </form>
+      <section class="weather__hour-list">
+        <div class="weather__cards">
+          <div class="weather__card"></div>
+        </div>
+        <ul class="weather__info-hours-list"></ul>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>
