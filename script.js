@@ -1,7 +1,7 @@
 const API_KEY = "f9f668594c6524a990e868705f2f8c40";
 
 const ulElement = document.querySelector(".weather__info-hours-list");
-const form = document.querySelector("#weather-form");
+const form = document.getElementById("weather-form");
 const input = document.querySelector(".weather-input");
 const headerTitle = document.querySelector(".header__title");
 const weatherContainer = document.querySelector(".weather__cards");
@@ -10,14 +10,16 @@ const headerTime = document.querySelector(".header__subtitle");
 
 let lastValidCity = "Moscow";
 
-async function getWeather(city = lastValidCity) {
+let lastUnits = "metric";
+
+async function getWeather(city = lastValidCity, units = lastUnits) {
   try {
     const [currentResponse, forecastResponse] = await Promise.all([
       fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`,
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=${units}`,
       ),
       fetch(
-        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=metric`,
+        `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=${units}`,
       ),
     ]);
 
@@ -31,16 +33,18 @@ async function getWeather(city = lastValidCity) {
     const currentData = await currentResponse.json();
     const forecastData = await forecastResponse.json();
 
-    renderWeatherCard(currentData);
+    renderWeatherCard(currentData, units);
     renderWeatherHours(forecastData.list.slice(0, 7));
     saveCityToLocalStorage(currentData.name);
   } catch (error) {
+    lastUnits = "metric";
     checkbox.disabled = true;
     checkbox.checked = false;
     weatherContainer.innerHTML = `
       <div class="weather__card-error"><p class="weather__card-error-title">Ошибка! Повторите попытку позже</p></div>`;
     ulElement.innerHTML = "";
-    console.log(error);
+    console.error(error);
+  } finally {
   }
 }
 
@@ -70,7 +74,7 @@ function renderWeatherHours(data) {
   });
 }
 
-function renderWeatherCard(data) {
+function renderWeatherCard(data, units = "metric") {
   const {
     name: nameCity,
     main: { temp, humidity, pressure },
@@ -90,6 +94,8 @@ function renderWeatherCard(data) {
 
   headerTime.textContent = formatDate(dt);
 
+  const tempSymbol = units === "metric" ? "°C" : "°F";
+
   weatherContainer.innerHTML = `
     <div class="weather__card">
       <div class="weather__loc">
@@ -98,7 +104,7 @@ function renderWeatherCard(data) {
       </div>
       <div class="weather__info">
         <img class="weather__icon-temp" src="/img/temp.png" alt="" />
-        <p class="weather__temp">${tempNum}°C</p>
+        <p class="weather__temp">${tempNum}${tempSymbol}</p>
         <img
           class="weather__icon"
           src="/img/weather_icon/${formatIconWeather(weatherStatus)}_big.png"
@@ -165,24 +171,9 @@ function formatIconWeather(weatherStatus) {
 }
 
 checkbox.addEventListener("change", function () {
-  const weatherTemp = document.querySelector(".weather__temp");
-
-  if (weatherTemp) {
-    const currentValue = parseInt(weatherTemp.textContent);
-    const convertedValue = this.checked
-      ? celToFar(currentValue)
-      : farToCel(currentValue);
-    weatherTemp.textContent = `${convertedValue}°${this.checked ? "F" : "C"}`;
-  }
-
-  const hourTemps = document.querySelectorAll(".weather__hour-temp");
-  hourTemps.forEach((item) => {
-    const currentValue = parseInt(item.textContent);
-    const convertedValue = this.checked
-      ? celToFar(currentValue)
-      : farToCel(currentValue);
-    item.textContent = `${convertedValue}°`;
-  });
+  const currentUnits = this.checked ? "imperial" : "metric";
+  lastUnits = currentUnits;
+  getWeather(lastValidCity, currentUnits);
 });
 
 function celToFar(value) {
